@@ -131,7 +131,7 @@ public class ProductosDataBase extends SQLiteOpenHelper {
                 + SALE_TABLE_COLUMN_PRECIO + " TEXT, "
                 + SALE_TABLE_COLUMN_TIPO + " TEXT, "
                 + SALE_TABLE_COLUMN_CAT + " TEXT, "
-                + SALE_TABLE_COLUMN_CAT_ID + " INTEGER, "
+                + SALE_TABLE_COLUMN_CAT_ID + " TEXT, "
                 + SALE_TABLE_COLUMN_URL_IMAGE_53 + " TEXT, "
                 + SALE_TABLE_COLUMN_URL_IMAGE_75 + " TEXT, "
                 + SALE_TABLE_COLUMN_URL_IMAGE_100 + " TEXT)";

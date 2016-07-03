@@ -1,8 +1,16 @@
 package com.apps.www.grabilityapp;
 
+import android.Manifest;
+import android.app.Activity;
+import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v4.app.ActivityCompat;
+import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -13,12 +21,21 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.apps.www.grabilityapp.fragments.ProductosFragment;
+import com.apps.www.grabilityapp.services.UpdateProductIntentService;
+
 /**
  * Created by gustavo morales on 3/07/2016.
  * tavomorales88@gmail.com
  **/
 public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
+        implements NavigationView.OnNavigationItemSelectedListener, ProductosFragment.OnListFragmentInteractionListener {
+
+    private static final String D = MainActivity.class.getSimpleName();
+    private static final int RC_HANDLE_PERM = 2;
+
+    private MainActivity instance;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,10 +48,17 @@ public class MainActivity extends AppCompatActivity
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+
             }
         });
+
+        if (findViewById(R.id.container) != null) {
+            if (savedInstanceState != null) {
+                return;
+            }
+            getSupportFragmentManager().beginTransaction()
+                    .add(R.id.container, new ProductosFragment()).commit();
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -44,6 +68,52 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        instance = this;
+
+        // Checkea permisos
+        int rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
+        if (rc == PackageManager.PERMISSION_GRANTED) {
+            init();
+        } else {
+            requestPermission();
+        }
+    }
+
+    private void init() {
+
+    }
+
+    private void requestPermission() {
+        Log.d(D,"Permission is not granted. Requesting permission");
+
+        final String[] permissions = new String[]{Manifest.permission.ACCESS_NETWORK_STATE};
+
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_NETWORK_STATE)) {
+            ActivityCompat.requestPermissions(this, permissions, RC_HANDLE_PERM);
+            return;
+        }
+
+        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                ActivityCompat.requestPermissions(instance, permissions,
+                        RC_HANDLE_PERM);
+            }
+        };
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(instance)
+                .setTitle("Alerta")
+                .setMessage("Permisos")
+                .setPositiveButton("Si", listener)
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
     }
 
     @Override
@@ -71,7 +141,9 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_update) {
+            Intent i = new Intent(this, UpdateProductIntentService.class);
+            startService(i);
             return true;
         }
 
@@ -101,5 +173,10 @@ public class MainActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
+    }
+
+    @Override
+    public void onListFragmentInteraction(String item) {
+
     }
 }

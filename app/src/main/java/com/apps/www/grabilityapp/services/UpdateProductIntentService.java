@@ -14,6 +14,7 @@ import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonArrayRequest;
+import com.android.volley.toolbox.JsonObjectRequest;
 import com.apps.www.grabilityapp.ApplicationContext;
 import com.apps.www.grabilityapp.database.ProductosDataBase;
 import com.apps.www.grabilityapp.modelos.Productos;
@@ -54,10 +55,7 @@ public class UpdateProductIntentService extends IntentService implements AsyncJS
     @Override
     protected void onHandleIntent(Intent intent) {
 
-        option = intent.getIntExtra("option", 0);
         instance = this;
-
-
         String url = Constantes.JSON_URL;
         ConnectionDetector connectionDetector = new ConnectionDetector(this);
         Log.d(D, "conexion a internet: " + connectionDetector.isConnectingToInternet());
@@ -83,12 +81,11 @@ public class UpdateProductIntentService extends IntentService implements AsyncJS
 
     private void getJson(String url) throws JSONException {
 
-        JsonArrayRequest request = new JsonArrayRequest(com.android.volley.Request.Method.GET, url,
-                new Response.Listener<JSONArray>() {
+        JsonObjectRequest request = new JsonObjectRequest(com.android.volley.Request.Method.GET, url,
+                new Response.Listener<JSONObject>() {
 
                     @Override
-                    public void onResponse(JSONArray response)
-                    {
+                    public void onResponse(JSONObject response) {
                         String jsonArray = response.toString();
                         Log.d(D, "respuesta server: " + jsonArray);
                         UpdateProductosAsyncTask updateProductosAsyncTask = new UpdateProductosAsyncTask(instance);
@@ -142,16 +139,33 @@ public class UpdateProductIntentService extends IntentService implements AsyncJS
 
         private void updateDataBaseProductos(String responseJSON) {
             ProductosDataBase productosDataBase = new ProductosDataBase(context);
-            JSONArray jsonArray;
+
             try {
                 ArrayList<Productos> productosArrayList = new ArrayList<>();
-                jsonArray = new JSONArray(responseJSON);
+                JSONObject jsonObject = new JSONObject(responseJSON);
+
+                JSONArray jsonArray = jsonObject.getJSONObject("feed").getJSONArray("entry");
+                Log.d(D, "jsonArray: " + jsonArray.toString());
                 for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject jsonObject = jsonArray.getJSONObject(i);
-                    Productos productos = new Productos();
-                    productos.setNombre(jsonObject.getString("Nombre"));
-                    productos.setTipo(jsonObject.getString("Tipo"));
-                    productos.setDescripcion(jsonObject.getString("Descripcion"));
+
+                    JSONObject jsonObjectProduct = jsonArray.getJSONObject(i);
+                    String nombre = jsonObjectProduct.getJSONObject("im:name").getString("label");
+                    String desc = jsonObjectProduct.getJSONObject("summary").getString("label");
+                    String precio = jsonObjectProduct.getJSONObject("im:price").getJSONObject("attributes").getString("amount");
+                    String tipo = jsonObjectProduct.getJSONObject("im:contentType").getJSONObject("attributes").getString("label");
+                    String cat = jsonObjectProduct.getJSONObject("category").getJSONObject("attributes").getString("label");
+                    String catId = jsonObjectProduct.getJSONObject("category").getJSONObject("attributes").getString("im:id");
+                    JSONArray jsonArrayUrl = jsonObjectProduct.getJSONArray("im:image");
+
+                    ArrayList<String> arrayListUrl = new ArrayList<>();
+                    for (int j = 0; j < jsonArrayUrl.length(); j++) {
+                        JSONObject jsonObjectUrl = jsonArrayUrl.getJSONObject(j);
+                        arrayListUrl.add(jsonObjectUrl.getString("label"));
+                    }
+                    Productos productos = new Productos(nombre, desc, precio, tipo, cat, catId,
+                            arrayListUrl.get(0), arrayListUrl.get(1), arrayListUrl.get(2)
+                            );
+                    Log.d(D, productos.toString());
                     productosArrayList.add(productos);
                 }
                 productosDataBase.delete();

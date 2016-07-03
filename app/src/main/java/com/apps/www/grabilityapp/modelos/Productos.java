@@ -13,15 +13,21 @@ public class Productos implements Serializable{
     private String precio;
     private String tipo;
     private String categoria;
-    private int categoriaId;
+    private String categoriaId;
     private String urlImage53;
     private String urlImage75;
     private String urlImage100;
 
+    @Override
+    public String toString() {
+        return nombre + " " + descripcion + " " + precio + " " + tipo + " " + categoria +
+                " " + categoriaId + " " + urlImage53 + " " + urlImage75 + " " + urlImage100;
+    }
+
     public Productos(){}
 
     public Productos(String nombre, String descripcion, String precio, String tipo, String categoria,
-                     int categoriaId, String urlImage53, String urlImage75, String urlImage100) {
+                     String categoriaId, String urlImage53, String urlImage75, String urlImage100) {
         this.nombre = nombre;
         this.descripcion = descripcion;
         this.precio = precio;
@@ -73,11 +79,11 @@ public class Productos implements Serializable{
         this.categoria = categoria;
     }
 
-    public int getCategoriaId() {
+    public String getCategoriaId() {
         return categoriaId;
     }
 
-    public void setCategoriaId(int categoriaId) {
+    public void setCategoriaId(String categoriaId) {
         this.categoriaId = categoriaId;
     }
 
