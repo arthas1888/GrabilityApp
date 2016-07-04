@@ -31,10 +31,9 @@ import java.util.ArrayList;
  * Created by gustavo morales on 3/07/2016.
  * tavomorales88@gmail.com
  **/
-public class UpdateProductIntentService extends IntentService implements AsyncJSONResponse {
+public class UpdateProductIntentService extends IntentService {
 
     private static final String D = UpdateProductIntentService.class.getSimpleName();
-    private int option;
     private UpdateProductIntentService instance;
 
     @SuppressWarnings("unused")
@@ -89,7 +88,6 @@ public class UpdateProductIntentService extends IntentService implements AsyncJS
                         String jsonArray = response.toString();
                         Log.d(D, "respuesta server: " + jsonArray);
                         UpdateProductosAsyncTask updateProductosAsyncTask = new UpdateProductosAsyncTask(instance);
-                        updateProductosAsyncTask.delegate = instance;
                         updateProductosAsyncTask.execute(jsonArray);
                     }
                 }, new Response.ErrorListener() {
@@ -97,9 +95,7 @@ public class UpdateProductIntentService extends IntentService implements AsyncJS
             public void onErrorResponse(VolleyError error)
             {
                 Log.e(D, "Error: " + error.getMessage());
-                Intent localIntent = new Intent(Constantes.BROADCAST_GET_JSON);
-                localIntent.putExtra("option", 10);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
+                processFinish(Constantes.BAD_REQUEST);
             }
         }
         );
@@ -109,14 +105,14 @@ public class UpdateProductIntentService extends IntentService implements AsyncJS
         ApplicationContext.getInstance().addToRequestQueue(request);
     }
 
-    @Override
-    public void processFinish() {
+
+    public void processFinish(int option) {
         Intent localIntent = new Intent(Constantes.BROADCAST_GET_JSON);
         localIntent.putExtra(Constantes.OPTION_JSON_BROADCAST, option);
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
     }
 
-    class UpdateProductosAsyncTask extends AsyncTask<String, Void, String> {
+    class UpdateProductosAsyncTask extends AsyncTask<String, Void, Boolean> {
 
         private Context context;
 
@@ -124,20 +120,19 @@ public class UpdateProductIntentService extends IntentService implements AsyncJS
             this.context = context;
         }
 
-        public AsyncJSONResponse delegate = null;
-
         @Override
-        protected String doInBackground(String... strings) {
-            updateDataBaseProductos(strings[0]);
-            return null;
+        protected Boolean doInBackground(String... strings) {
+            return updateDataBaseProductos(strings[0]);
         }
 
         @Override
-        protected void onPostExecute(String jsonArray) {
-            delegate.processFinish();
+        protected void onPostExecute(Boolean response) {
+            if (response) processFinish(Constantes.UPDATE_PRODUCTS);
         }
 
-        private void updateDataBaseProductos(String responseJSON) {
+        private boolean updateDataBaseProductos(String responseJSON) {
+
+            boolean response = false;
             ProductosDataBase productosDataBase = new ProductosDataBase(context);
 
             try {
@@ -165,17 +160,19 @@ public class UpdateProductIntentService extends IntentService implements AsyncJS
                     Productos productos = new Productos(nombre, desc, precio, tipo, cat, catId,
                             arrayListUrl.get(0), arrayListUrl.get(1), arrayListUrl.get(2)
                             );
-                    Log.d(D, productos.toString());
+                    //Log.d(D, productos.toString());
                     productosArrayList.add(productos);
                 }
                 productosDataBase.delete();
                 productosDataBase.add(productosArrayList);
+                response = true;
 
             } catch (Exception e) {
                 Log.e(D, "updateDataBaseProductos: " + e.getMessage());
             } finally {
                 productosDataBase.close();
             }
+            return response;
         }
     }
 }

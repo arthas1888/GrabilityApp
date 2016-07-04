@@ -120,6 +120,23 @@ public class ProductosDataBase extends SQLiteOpenHelper {
         return database.rawQuery(buildSQL, null);
     }
 
+    public ArrayList<String> getCategorias() {
+        String buildSQL = "SELECT DISTINCT categoria FROM " + TABLE_NAME;
+        return toArrayList(database.rawQuery(buildSQL, null));
+    }
+
+    public ArrayList<String> toArrayList(Cursor cur) {
+        ArrayList<String> categorias = new ArrayList<>();
+        if (cur.moveToFirst()) {
+            do {
+                categorias.add(cur.getString(0));
+            } while (cur.moveToNext());
+        }
+        cur.close();
+        return categorias;
+    }
+
+
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
 

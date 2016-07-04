@@ -2,13 +2,17 @@ package com.apps.www.grabilityapp;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
@@ -21,8 +25,17 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.apps.www.grabilityapp.database.ProductosDataBase;
 import com.apps.www.grabilityapp.fragments.ProductosFragment;
 import com.apps.www.grabilityapp.services.UpdateProductIntentService;
+import com.apps.www.grabilityapp.utilidades.Constantes;
+import com.apps.www.grabilityapp.utilidades.MetodosPublicos;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Created by gustavo morales on 3/07/2016.
@@ -35,6 +48,7 @@ public class MainActivity extends AppCompatActivity
     private static final int RC_HANDLE_PERM = 2;
 
     private MainActivity instance;
+    private GetJSONBroadcastReceiver getJSONBroadcastReceiver;
 
 
     @Override
@@ -70,18 +84,27 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         instance = this;
+        getJSONBroadcastReceiver = new GetJSONBroadcastReceiver();
 
         // Checkea permisos
         int rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
-        if (rc == PackageManager.PERMISSION_GRANTED) {
-            init();
-        } else {
+        if (rc != PackageManager.PERMISSION_GRANTED) {
             requestPermission();
         }
     }
 
-    private void init() {
+    public void onResume(){
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Constantes.BROADCAST_GET_JSON);
+        LocalBroadcastManager.getInstance(instance).registerReceiver(getJSONBroadcastReceiver,
+                intentFilter);
+    }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(getJSONBroadcastReceiver);
     }
 
     private void requestPermission() {
@@ -178,5 +201,38 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onListFragmentInteraction(String item) {
 
+    }
+
+    /**
+     * Clase especializada en recibir la respuesta de las peticiones enviadas al servidor
+     */
+    public class GetJSONBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            int option = intent.getIntExtra(Constantes.OPTION_JSON_BROADCAST, 0);
+            final String action = intent.getAction();
+            //progressdialog.dismiss();
+            if (Constantes.BROADCAST_GET_JSON.equals(action)) {
+                switch (option) {
+                    case Constantes.UPDATE_PRODUCTS:
+                        MetodosPublicos.alertDialog(instance, "Listado de productos actualizados exitosamente");
+                        ProductosDataBase productosDataBase = new ProductosDataBase(instance);
+                        ArrayList<String> arrayListCat = productosDataBase.getCategorias();
+                        productosDataBase.close();
+                        for(String cat: arrayListCat){
+                            Log.d(D, "Cat.: " + cat);
+                        }
+                        break;
+                    case Constantes.SEND_REQUEST:
+                    case Constantes.BAD_REQUEST:
+                        MetodosPublicos.alertDialog(instance, "Fallo al actualizar la base de datos");
+                        break;
+                    case Constantes.TIME_OUT_REQUEST:
+                        MetodosPublicos.alertDialog(instance, "Equipo sin conexion al Servidor, Intentelo mas tarde.");
+                        break;
+                }
+            }
+        }
     }
 }
