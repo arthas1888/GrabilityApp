@@ -41,6 +41,7 @@ public class SplashActivity extends AppCompatActivity  {
     private SplashActivity instance;
     private GetJSONBroadcastReceiver getJSONBroadcastReceiver;
     private boolean ready;
+    private boolean badRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,9 +54,7 @@ public class SplashActivity extends AppCompatActivity  {
         getJSONBroadcastReceiver = new GetJSONBroadcastReceiver();
         Intent i = new Intent(this, UpdateProductIntentService.class);
         startService(i);
-
-        //RelativeLayout rootView = (RelativeLayout) findViewById(R.id.relative_layout);
-
+        badRequest = false;
     }
 
     public void onStateChange(int state) {
@@ -63,8 +62,7 @@ public class SplashActivity extends AppCompatActivity  {
             case State.FILL_STARTED:
                 break;
             case State.FINISHED:
-                if (ready)
-                startActivity( new Intent(this, MainActivity.class));
+                if (ready || badRequest) startActivity( new Intent(instance, MainActivity.class));
                 break;
             default:
                 break;
@@ -108,11 +106,11 @@ public class SplashActivity extends AppCompatActivity  {
                         break;
                     case Constantes.SEND_REQUEST:
                     case Constantes.BAD_REQUEST:
-                        if (!ready) startActivity( new Intent(instance, MainActivity.class));
+                        badRequest = true;
                         Log.e(D, "Fallo al actualizar la base de datos");
                         break;
                     case Constantes.TIME_OUT_REQUEST:
-                        if (!ready) startActivity( new Intent(instance, MainActivity.class));
+                        badRequest = true;
                         Log.e(D, "Equipo sin conexion al Servidor, Intentelo mas tarde.");
                         break;
                 }

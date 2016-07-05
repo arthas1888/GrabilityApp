@@ -4,6 +4,7 @@ import android.annotation.TargetApi;
 import android.app.ActivityOptions;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -88,20 +89,24 @@ public class ProductosActivity extends AppCompatActivity implements OnListIntera
     @Override
     public void onListInteraction(Productos productos, ImageView imageView) {
         Log.d(D, "entra aca: " + productos.getNombre());
-        //Intent i = new Intent(instance, DetailsProductActivity.class);
-        //startActivity(i);
-        Bitmap bitmap = ((BitmapDrawable)imageView.getDrawable()).getBitmap();
+        Bitmap bitmap;
+        try {
+            bitmap = ((BitmapDrawable) imageView.getDrawable()).getBitmap();
+        }catch (Exception e){
+            bitmap = null;
+        }
         Intent i = new Intent(instance, DetailsProductActivity.class);
-        i.putExtra("Image", bitmap);
         i.putExtra("productos", productos);
         String transitionName = getString(R.string.img_transition);
 
-        ActivityOptions transitionActivityOptions = null;
+        ActivityOptions transitionActivityOptions;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            i.putExtra("Image", bitmap);
             transitionActivityOptions = ActivityOptions
                     .makeSceneTransitionAnimation(instance, imageView, transitionName);
             startActivity(i, transitionActivityOptions.toBundle());
         }else{
+            i.putExtra("Image", bitmap);
             startActivity(i);
         }
 

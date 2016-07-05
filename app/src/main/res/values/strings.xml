@@ -104,4 +104,12 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="salir">Salir</string>
+    <string name="acciones">Acciones</string>
+    <string name="about">Acerca de</string>
+    <string name="main">Principal</string>
+    <string name="title_activity_about">Acerca de</string>
+
+    <string name="text_about">Esta es una aplicacion que consume un web service y en base al resultado muestra una lista de categorias y productos.\n\n</string>
+    <string name="text_about_foot">Todos los derechos reservados Gustavo Morales 2016\nE-mail: tavomorales88@gmail.com</string>
 </resources>

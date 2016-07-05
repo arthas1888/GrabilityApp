@@ -3,26 +3,41 @@ package com.apps.www.grabilityapp;
 import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.ActivityOptions;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.NavigationView;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
+import android.transition.Slide;
+import android.transition.TransitionInflater;
+import android.util.Log;
+import android.view.View;
+import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.transition.Slide;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.apps.www.grabilityapp.database.ProductosDataBase;
 import com.apps.www.grabilityapp.fragments.CategoriasFragment;
 import com.apps.www.grabilityapp.services.UpdateProductIntentService;
+import com.apps.www.grabilityapp.utilidades.Constantes;
+import com.apps.www.grabilityapp.utilidades.MetodosPublicos;
+
+import java.util.ArrayList;
 
 /**
  * Created by gustavo morales on 3/07/2016.
@@ -35,6 +50,7 @@ public class MainActivity extends AppCompatActivity
     private static final int RC_HANDLE_PERM = 2;
 
     private MainActivity instance;
+    private GetJSONBroadcastReceiver getJSONBroadcastReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +81,15 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         instance = this;
+        getJSONBroadcastReceiver = new GetJSONBroadcastReceiver();
 
         // Checkea permisos
         int rc = ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA);
         if (rc != PackageManager.PERMISSION_GRANTED) {
             requestPermission();
         }
+
+
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -78,6 +97,20 @@ public class MainActivity extends AppCompatActivity
         Slide slide = new Slide();
         slide.setDuration(500);
         getWindow().setExitTransition(slide);
+    }
+
+    public void onResume(){
+        super.onResume();
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Constantes.BROADCAST_GET_JSON);
+        LocalBroadcastManager.getInstance(instance).registerReceiver(getJSONBroadcastReceiver,
+                intentFilter);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(getJSONBroadcastReceiver);
     }
 
     private void requestPermission() {
@@ -152,25 +185,36 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
+        switch (id){
+            case R.id.nav_main:
+                replaceFragment(new CategoriasFragment());
+                break;
+            case R.id.nav_about:
+                startActivity(new Intent(this, AboutActivity.class));
+                break;
+            case R.id.nav_exit:
+                confirmClose();
+                break;
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 
+    private void confirmClose() {
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(this)
+                .setTitle("Alerta")
+                .setMessage("¿Esta seguro que desea salir de la app?")
+                .setPositiveButton("SI", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                })
+                .setNegativeButton("NO", null);
+        android.app.AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
 
     @Override
     public void onListFragmentInteraction(String item) {
@@ -184,4 +228,55 @@ public class MainActivity extends AppCompatActivity
             startActivity(intent);
         }
     }
+
+    /**
+     * Clase especializada en recibir la respuesta de las peticiones enviadas al servidor
+     */
+    public class GetJSONBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+
+            int option = intent.getIntExtra(Constantes.OPTION_JSON_BROADCAST, 0);
+            final String action = intent.getAction();
+            //progressdialog.dismiss();
+            if (Constantes.BROADCAST_GET_JSON.equals(action)) {
+                switch (option) {
+                    case Constantes.UPDATE_PRODUCTS:
+                        Log.d(D, "Listado de productos actualizados exitosamente");
+                        break;
+                    case Constantes.SEND_REQUEST:
+                    case Constantes.BAD_REQUEST:
+                        Log.e(D, "Fallo al actualizar la base de datos");
+                        break;
+                    case Constantes.TIME_OUT_REQUEST:
+                        Log.e(D, "Equipo sin conexion al Servidor, Intentelo mas tarde.");
+                        break;
+                }
+            }
+        }
+    }
+
+    public void alertSinConexion(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(instance)
+                .setCancelable(false)
+                .setTitle("No hay conexion a la red")
+                .setMessage("No se puede establecer conexion con la red. Verifica la conexion de datos y vuelve a intentarlo" +
+                        "\nEs necesario por primera vez para cargar la lista de productos")
+                .setPositiveButton("Aceptar", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        finish();
+                    }
+                });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    private void replaceFragment(Fragment fragment){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.container, fragment);
+        fragmentTransaction.commit();
+    }
+
 }

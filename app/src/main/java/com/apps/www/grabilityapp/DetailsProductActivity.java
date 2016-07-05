@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.transition.Fade;
 import android.transition.Slide;
 import android.transition.TransitionInflater;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,6 +22,8 @@ import android.widget.ImageView;
 import com.apps.www.grabilityapp.modelos.Productos;
 
 public class DetailsProductActivity extends AppCompatActivity {
+
+    private static final String D = "DetailsProductActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,11 +37,10 @@ public class DetailsProductActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Snackbar.make(view, "Producto agregado a favoritos", Snackbar.LENGTH_LONG).show();
             }
         });
-
+        Log.e(D, "entra aca onCreate");
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
         assert collapsingToolbarLayout != null;
         collapsingToolbarLayout.setTitle("Detalles");
@@ -50,8 +52,12 @@ public class DetailsProductActivity extends AppCompatActivity {
         Bitmap bitmap = getIntent().getParcelableExtra("Image");
         ImageView imageView = (ImageView) findViewById(R.id.header_img);
         assert imageView != null;
-        imageView.setImageBitmap(bitmap);
+        if (bitmap != null)
+            imageView.setImageBitmap(bitmap);
+        else
+            imageView.setImageResource(R.drawable.not_available);
 
+        Log.e(D, "creado");
     }
 
     @Override

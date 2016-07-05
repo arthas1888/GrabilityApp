@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.apps.www.grabilityapp.Adapters.CategoriasRecyclerViewAdapter;
+import com.apps.www.grabilityapp.MainActivity;
 import com.apps.www.grabilityapp.R;
 import com.apps.www.grabilityapp.database.ProductosDataBase;
 
@@ -41,16 +42,7 @@ public class CategoriasFragment extends Fragment {
     public CategoriasFragment() {
     }
 
-    // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    /*public static CategoriasFragment newInstance(int columnCount) {
-        CategoriasFragment fragment = new CategoriasFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
-        return fragment;
-    }*/
-
     public static CategoriasFragment newInstance(ArrayList<String> arrayListCat) {
         CategoriasFragment fragment = new CategoriasFragment();
         Bundle args = new Bundle();
@@ -66,6 +58,7 @@ public class CategoriasFragment extends Fragment {
         ProductosDataBase productosDataBase = new ProductosDataBase(getActivity());
         arrayListCat = productosDataBase.getCategorias();
         productosDataBase.close();
+        if (arrayListCat.size() == 0) ((MainActivity) (getActivity())).alertSinConexion();
         /*for(String cat: arrayListCat){
             Log.d(D, "Cat.: " + cat);
         }*/
