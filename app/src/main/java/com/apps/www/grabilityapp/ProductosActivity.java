@@ -97,16 +97,15 @@ public class ProductosActivity extends AppCompatActivity implements OnListIntera
         }
         Intent i = new Intent(instance, DetailsProductActivity.class);
         i.putExtra("productos", productos);
+        i.putExtra("Image", bitmap);
         String transitionName = getString(R.string.img_transition);
 
         ActivityOptions transitionActivityOptions;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-            i.putExtra("Image", bitmap);
             transitionActivityOptions = ActivityOptions
                     .makeSceneTransitionAnimation(instance, imageView, transitionName);
             startActivity(i, transitionActivityOptions.toBundle());
         }else{
-            i.putExtra("Image", bitmap);
             startActivity(i);
         }
 

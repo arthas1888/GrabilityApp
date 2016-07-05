@@ -170,11 +170,11 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_update) {
+        /*if (id == R.id.action_update) {
             Intent i = new Intent(this, UpdateProductIntentService.class);
             startService(i);
             return true;
-        }
+        }*/
 
         return super.onOptionsItemSelected(item);
     }

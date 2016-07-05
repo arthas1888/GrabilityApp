@@ -112,4 +112,6 @@
 
     <string name="text_about">Esta es una aplicacion que consume un web service y en base al resultado muestra una lista de categorias y productos.\n\n</string>
     <string name="text_about_foot">Todos los derechos reservados Gustavo Morales 2016\nE-mail: tavomorales88@gmail.com</string>
+    <string name="add">AÑADIR A LA CESTA</string>
+    <string name="buy_now">COMPRAR AHORA</string>
 </resources>

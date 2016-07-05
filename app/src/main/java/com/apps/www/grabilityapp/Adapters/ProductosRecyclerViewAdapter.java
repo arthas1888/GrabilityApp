@@ -1,5 +1,6 @@
 package com.apps.www.grabilityapp.Adapters;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -41,11 +42,12 @@ public class ProductosRecyclerViewAdapter extends RecyclerView.Adapter<Productos
         return new ViewHolder(view);
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
         holder.mNameView.setText(mValues.get(position).getNombre());
-        holder.mPriceView.setText(mValues.get(position).getPrecio());
+        holder.mPriceView.setText("US $" + mValues.get(position).getPrecio());
         String url = mValues.get(position).getUrlImage100();
         holder.mNetworkImageView.setImageUrl(url, holder.mImageLoader);
 

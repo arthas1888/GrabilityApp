@@ -18,6 +18,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.apps.www.grabilityapp.modelos.Productos;
 
@@ -40,7 +41,7 @@ public class DetailsProductActivity extends AppCompatActivity {
                 Snackbar.make(view, "Producto agregado a favoritos", Snackbar.LENGTH_LONG).show();
             }
         });
-        Log.e(D, "entra aca onCreate");
+
         CollapsingToolbarLayout collapsingToolbarLayout = (CollapsingToolbarLayout) findViewById(R.id.toolbar_layout);
         assert collapsingToolbarLayout != null;
         collapsingToolbarLayout.setTitle("Detalles");
@@ -57,7 +58,9 @@ public class DetailsProductActivity extends AppCompatActivity {
         else
             imageView.setImageResource(R.drawable.not_available);
 
-        Log.e(D, "creado");
+        ((TextView) findViewById(R.id.textViewTitle)).setText(productos.getNombre());
+        ((TextView) findViewById(R.id.textViewPrice)).setText("US $" + productos.getPrecio());
+        ((TextView) findViewById(R.id.textViewDesc)).setText(productos.getDescripcion());
     }
 
     @Override
