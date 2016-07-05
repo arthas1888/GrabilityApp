@@ -6,8 +6,6 @@
     android:name="com.sersoluciones.www.gravilityapp.fragments.ProductosFragment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
     app:layoutManager="LinearLayoutManager"
-    tools:context="com.sersoluciones.www.gravilityapp.fragments.ProductosFragment"
+    tools:context="com.apps.www.grabilityapp.MainActivity"
     tools:listitem="@layout/fragment_item" />

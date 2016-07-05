@@ -6,12 +6,14 @@ import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.apps.www.grabilityapp.Adapters.ProductosRecyclerViewAdapter;
+import com.apps.www.grabilityapp.Adapters.CategoriasRecyclerViewAdapter;
 import com.apps.www.grabilityapp.R;
+import com.apps.www.grabilityapp.database.ProductosDataBase;
 
 import java.util.ArrayList;
 
@@ -22,27 +24,37 @@ import java.util.ArrayList;
  * Created by gustavo morales on 3/07/2016.
  * tavomorales88@gmail.com
  **/
-public class ProductosFragment extends Fragment {
+public class CategoriasFragment extends Fragment {
 
     // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
+    private static final String ARG_PARAM1 = "categorias";
+    private static final String D = "CategoriasFragment";
     // TODO: Customize parameters
-    private int mColumnCount = 2;
+    private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
+    private ArrayList<String> arrayListCat;
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
      */
-    public ProductosFragment() {
+    public CategoriasFragment() {
     }
 
     // TODO: Customize parameter initialization
     @SuppressWarnings("unused")
-    public static ProductosFragment newInstance(int columnCount) {
-        ProductosFragment fragment = new ProductosFragment();
+    /*public static CategoriasFragment newInstance(int columnCount) {
+        CategoriasFragment fragment = new CategoriasFragment();
         Bundle args = new Bundle();
         args.putInt(ARG_COLUMN_COUNT, columnCount);
+        fragment.setArguments(args);
+        return fragment;
+    }*/
+
+    public static CategoriasFragment newInstance(ArrayList<String> arrayListCat) {
+        CategoriasFragment fragment = new CategoriasFragment();
+        Bundle args = new Bundle();
+        args.putSerializable(ARG_PARAM1, arrayListCat);
         fragment.setArguments(args);
         return fragment;
     }
@@ -51,9 +63,12 @@ public class ProductosFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
+        ProductosDataBase productosDataBase = new ProductosDataBase(getActivity());
+        arrayListCat = productosDataBase.getCategorias();
+        productosDataBase.close();
+        /*for(String cat: arrayListCat){
+            Log.d(D, "Cat.: " + cat);
+        }*/
     }
 
     @Override
@@ -70,7 +85,7 @@ public class ProductosFragment extends Fragment {
             } else {
                 recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
             }
-            recyclerView.setAdapter(new ProductosRecyclerViewAdapter(new ArrayList<String>(), mListener));
+            recyclerView.setAdapter(new CategoriasRecyclerViewAdapter(arrayListCat, mListener));
         }
         return view;
     }

@@ -120,6 +120,22 @@ public class ProductosDataBase extends SQLiteOpenHelper {
         return database.rawQuery(buildSQL, null);
     }
 
+    public ArrayList<Productos> getProductosByCat(String categoria) {
+
+        String buildSQL = "SELECT * FROM " + TABLE_NAME + " WHERE categoria LIKE '%" + categoria + "%'";
+        Cursor cur =database.rawQuery(buildSQL, null);
+        ArrayList<Productos> arrayListProductos = new ArrayList<>();
+        if (cur.moveToFirst()) {
+            do {
+                arrayListProductos.add(new Productos(cur.getString(1), cur.getString(2), cur.getString(3),
+                        cur.getString(4), cur.getString(5), cur.getString(6), cur.getString(7),
+                        cur.getString(8), cur.getString(9)));
+            } while (cur.moveToNext());
+        }
+        cur.close();
+        return arrayListProductos;
+    }
+
     public ArrayList<String> getCategorias() {
         String buildSQL = "SELECT DISTINCT categoria FROM " + TABLE_NAME;
         return toArrayList(database.rawQuery(buildSQL, null));
@@ -135,7 +151,6 @@ public class ProductosDataBase extends SQLiteOpenHelper {
         cur.close();
         return categorias;
     }
-
 
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
