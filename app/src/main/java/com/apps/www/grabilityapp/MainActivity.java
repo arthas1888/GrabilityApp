@@ -1,43 +1,35 @@
 package com.apps.www.grabilityapp;
 
 import android.Manifest;
-import android.annotation.TargetApi;
 import android.app.ActivityOptions;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
-import android.transition.Slide;
-import android.transition.TransitionInflater;
-import android.util.Log;
-import android.view.View;
-import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.transition.Slide;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.apps.www.grabilityapp.database.ProductosDataBase;
 import com.apps.www.grabilityapp.fragments.CategoriasFragment;
-import com.apps.www.grabilityapp.services.UpdateProductIntentService;
 import com.apps.www.grabilityapp.utilidades.Constantes;
-import com.apps.www.grabilityapp.utilidades.MetodosPublicos;
-
-import java.util.ArrayList;
 
 /**
  * Created by gustavo morales on 3/07/2016.
@@ -55,6 +47,11 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(getResources().getBoolean(R.bool.portrait_only)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
         setContentView(R.layout.activity_main);
         setupWindowAnimations();
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -92,11 +89,15 @@ public class MainActivity extends AppCompatActivity
 
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+
     private void setupWindowAnimations() {
-        Slide slide = new Slide();
-        slide.setDuration(500);
-        getWindow().setExitTransition(slide);
+
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            Slide slide = new Slide();
+            slide.setDuration(500);
+            getWindow().setExitTransition(slide);
+        }
+
     }
 
     public void onResume(){
@@ -268,6 +269,16 @@ public class MainActivity extends AppCompatActivity
                         finish();
                     }
                 });
+        AlertDialog alertDialog = builder.create();
+        alertDialog.show();
+    }
+
+    public void alertOfflineConection(){
+        AlertDialog.Builder builder = new AlertDialog.Builder(instance)
+                .setTitle("Conexion Offline")
+                .setMessage("No se puede establecer conexion con la red. Los productos mostrados son los almacenados en la cache del dispositivo, " +
+                        "cuando este presento conexion a Internet por ultima vez")
+                .setPositiveButton("Aceptar", null);
         AlertDialog alertDialog = builder.create();
         alertDialog.show();
     }

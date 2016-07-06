@@ -15,6 +15,7 @@ import com.apps.www.grabilityapp.Adapters.CategoriasRecyclerViewAdapter;
 import com.apps.www.grabilityapp.MainActivity;
 import com.apps.www.grabilityapp.R;
 import com.apps.www.grabilityapp.database.ProductosDataBase;
+import com.apps.www.grabilityapp.utilidades.ConnectionDetector;
 
 import java.util.ArrayList;
 
@@ -55,10 +56,20 @@ public class CategoriasFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        if(!getResources().getBoolean(R.bool.portrait_only)){
+            mColumnCount = 2;
+        }
         ProductosDataBase productosDataBase = new ProductosDataBase(getActivity());
         arrayListCat = productosDataBase.getCategorias();
         productosDataBase.close();
         if (arrayListCat.size() == 0) ((MainActivity) (getActivity())).alertSinConexion();
+        else {
+            ConnectionDetector connectionDetector = new ConnectionDetector(getActivity());
+            Log.d(D, "conexion a internet: " + connectionDetector.isConnectingToInternet());
+            if (!connectionDetector.isConnectingToInternet()) {
+                ((MainActivity) (getActivity())).alertOfflineConection();
+            }
+        }
         /*for(String cat: arrayListCat){
             Log.d(D, "Cat.: " + cat);
         }*/

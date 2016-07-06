@@ -7,24 +7,21 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
-
-import com.android.volley.AuthFailureError;
 import com.android.volley.DefaultRetryPolicy;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonArrayRequest;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.apps.www.grabilityapp.ApplicationContext;
 import com.apps.www.grabilityapp.database.ProductosDataBase;
 import com.apps.www.grabilityapp.modelos.Productos;
-import com.apps.www.grabilityapp.utilidades.AsyncJSONResponse;
 import com.apps.www.grabilityapp.utilidades.ConnectionDetector;
 import com.apps.www.grabilityapp.utilidades.Constantes;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 /**
@@ -66,9 +63,7 @@ public class UpdateProductIntentService extends IntentService {
                 e.printStackTrace();
             }
         }else{
-            Intent localIntent = new Intent(Constantes.BROADCAST_GET_JSON);
-            localIntent.putExtra(Constantes.OPTION_JSON_BROADCAST, 10);
-            LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(localIntent);
+            processFinish(Constantes.BAD_REQUEST);
         }
 
     }

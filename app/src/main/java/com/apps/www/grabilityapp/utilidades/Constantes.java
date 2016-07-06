@@ -16,9 +16,6 @@ public class Constantes {
     public static final int UPDATE_PRODUCTS = 0;
     public static final int SUCCESS_REQUEST = 1;
     public static final int SEND_REQUEST = 3;
-    public static final int REQUEST_NOT_FOUND = 4;
-    public static final int PRODUCTS_NOT_FOUND = 5;
-    public static final int PRODUCTS_FOUND = 6;
     public static final int BAD_REQUEST = 9;
     public static final int TIME_OUT_REQUEST = 10;
 }

@@ -2,30 +2,21 @@ package com.apps.www.grabilityapp.fragments;
 
 
 import android.animation.Animator;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
 
-import com.apps.www.grabilityapp.MainActivity;
 import com.apps.www.grabilityapp.R;
 import com.apps.www.grabilityapp.SplashActivity;
 import com.apps.www.grabilityapp.utilidades.Paths;
-import com.apps.www.grabilityapp.utilidades.ResettableView;
 import com.github.jorgecastillo.FillableLoader;
-import com.github.jorgecastillo.FillableLoaderBuilder;
-import com.github.jorgecastillo.State;
-import com.github.jorgecastillo.clippingtransforms.WavesClippingTransform;
 import com.github.jorgecastillo.listener.OnStateChangeListener;
 
 import butterknife.Bind;
@@ -86,10 +77,11 @@ public class SplashFragment extends Fragment implements OnStateChangeListener {
                 Animator anim = null;
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
                     anim = ViewAnimationUtils.createCircularReveal(rootView, cx, cy, 0, finalRadius);
+                    anim.start();
                 }
                 int color = Color.WHITE;
                 rootView.setBackgroundColor(color);
-                anim.start();
+
             }
         }, 250);
     }

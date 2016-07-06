@@ -7,10 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-
 import com.android.volley.toolbox.ImageLoader;
 import com.android.volley.toolbox.NetworkImageView;
-import com.apps.www.grabilityapp.ProductosActivity;
 import com.apps.www.grabilityapp.R;
 import com.apps.www.grabilityapp.modelos.Productos;
 import com.apps.www.grabilityapp.utilidades.MySingleton;

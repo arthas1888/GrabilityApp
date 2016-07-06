@@ -1,12 +1,10 @@
 package com.apps.www.grabilityapp;
 
-import android.annotation.TargetApi;
 import android.app.ActivityOptions;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
@@ -17,14 +15,16 @@ import android.transition.Slide;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.ImageView;
 
-import com.android.volley.toolbox.NetworkImageView;
 import com.apps.www.grabilityapp.Adapters.ProductosRecyclerViewAdapter;
 import com.apps.www.grabilityapp.database.ProductosDataBase;
 import com.apps.www.grabilityapp.modelos.Productos;
+import com.apps.www.grabilityapp.utilidades.ConnectionDetector;
+import com.apps.www.grabilityapp.utilidades.Constantes;
 import com.apps.www.grabilityapp.utilidades.OnListInteractionListener;
+
+import org.json.JSONException;
 
 import java.util.ArrayList;
 
@@ -41,6 +41,12 @@ public class ProductosActivity extends AppCompatActivity implements OnListIntera
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if(getResources().getBoolean(R.bool.portrait_only)){
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        }else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+            mColumnCount = 2;
+        }
         setContentView(R.layout.activity_productos);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -72,18 +78,19 @@ public class ProductosActivity extends AppCompatActivity implements OnListIntera
         setupWindowAnimations();
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void setupWindowAnimations() {
         //Fade fade = (Fade) TransitionInflater.from(this).inflateTransition(R.transition.activity_fade);
         //getWindow().setEnterTransition(fade);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            Slide slide = new Slide(Gravity.END);
+            slide.setDuration(500);
+            getWindow().setEnterTransition(slide);
 
-        Slide slide = new Slide(Gravity.END);
-        slide.setDuration(500);
-        getWindow().setEnterTransition(slide);
+            Slide slide2 = new Slide(Gravity.START);
+            slide2.setDuration(500);
+            getWindow().setReturnTransition(slide2);
+        }
 
-        Slide slide2 = new Slide(Gravity.START);
-        slide2.setDuration(500);
-        getWindow().setReturnTransition(slide2);
     }
 
     @Override
@@ -120,5 +127,11 @@ public class ProductosActivity extends AppCompatActivity implements OnListIntera
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
     }
 }
